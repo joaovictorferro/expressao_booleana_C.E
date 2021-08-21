@@ -25,38 +25,40 @@ def print_tree(no):
 
 def construirArvore(cromossomo,no):
     global index
+    global index2
    # print(index)
     #print("no da arvore: " + cromossomo[index])
-    no_novo = Node('')
     if index< len(cromossomo) and  cromossomo[index] == "!":
         no = Node("!")
         index += 1
-        no.left = construirArvore(cromossomo,no_novo)
-    if index< len(cromossomo) and cromossomo[index] == '(':
-        no = Node("")
+        no.left = construirArvore(cromossomo,no)
+        return no
+
+    if index<len(cromossomo) and cromossomo[index]=="(":
+        no= Node('')
         index += 1
-        no.left = construirArvore(cromossomo,no_novo)
-       #print("Cromossomo index: " + cromossomo[index])
-    if index< len(cromossomo) and (cromossomo[index] == 'and' or cromossomo[index] == 'or'):
+        no.left = construirArvore(cromossomo,no)
+
+    if index < len(cromossomo) and (cromossomo[index] == 'and' or cromossomo[index] == 'or'):
         if cromossomo[index] == 'and':
             no.data = 'and'
         else:
             no.data = 'or'
         index += 1
-        no.right = construirArvore(cromossomo,no_novo)
+        no.right = construirArvore(cromossomo, no)
 
-    if index< len(cromossomo) and cromossomo[index] == 'q':
-        no_novo = Node('q')
+    if index<len(cromossomo) and cromossomo[index] =='q':
+        no = Node('q')
         index += 1
-        if index< len(cromossomo) and cromossomo[index] ==')':
+
+        if index < len(cromossomo) and cromossomo[index] == ')':
             index += 1
-        return no_novo
+        return no
     return no
 
 def init_populacao():
     for i in range(1):
         cromossomo = []
-        # for i in range(10):
         aleatorio = np.random.randint(0, 2)
         if aleatorio == 1:
             cromossomo.append('!')
@@ -87,11 +89,24 @@ def init_populacao():
         cromossomo.append('q')
         cromossomo.append(')')
 
+        # cromossomo.append('!')
+        # cromossomo.append('(')
+        # cromossomo.append('!')
+        # cromossomo.append('(')
+        # cromossomo.append('!')
+        # cromossomo.append('q')
+        # cromossomo.append('or')
+        # cromossomo.append('!')
+        # cromossomo.append('q')
+        # cromossomo.append(')')
+        # cromossomo.append('or')
+        # cromossomo.append('!')
+        # cromossomo.append('q')
+        # cromossomo.append(')')
         populacao.append(Cromossomo(cromossomo))
         for l in range (len(populacao)):
             print(populacao[l])
         no = Node('')
-        index = 0
         no = construirArvore(cromossomo,no)
         print_tree(no)
 
