@@ -1,5 +1,5 @@
 import numpy as np
-from cromossomo import  Cromossomo
+from cromossomo import Cromossomo
 from tree import Node
 solucao = [[1,1,1,0],
          [1,1,0,0],
@@ -11,24 +11,104 @@ solucao = [[1,1,1,0],
          [0,0,0,0]]
 
 dicionario = {0: "and", 1: "or"}
-arvore = [[]] #lista de adjacencia
 populacao = []
+listaFant = []
 global index
 index = 0
+
+def score(ScorePopulacao):
+    for ind in ScorePopulacao:
+        lista = []
+        listaFant.clear()
+        print_tree(ind)
+        listaFant.reverse()
+        indScore = 0
+        print(listaFant)
+        for solu in solucao:
+            lista = listaFant.copy()
+            cont = 0
+            while len(lista) != 0:
+                var1 = lista.pop()
+                print("Desempilhei 1 :" + str(var1))
+                if len(lista) == 0:
+                    cont += 1
+                    if var1 == solu[cont]:
+                        indScore += 1
+                    break
+
+                if type(var1) is int:
+                    var2 = lista.pop()
+                    if var2 == '\\!':
+                        if var1 == 0:
+                            lista.insert(len(lista), 1)
+                        else:
+                            lista.insert(len(lista), 0)
+                    if var2 == 'or':
+                        cont += 1
+                        var3 = lista.pop()
+                        var3 = solu[cont]
+                        if len(lista) != 0:
+                            var4 = lista.pop()
+                            if var4 == '!':
+                                if solu[cont] == 0:
+                                    var3 = 1
+                                else:
+                                    var3 = 0
+                            elif var4 =='\\!':
+                                lista.insert(len(lista), '\\!')
+                        resolu = var1 or var3
+                        lista.insert(len(lista),resolu)
+
+                    if var2 == 'and':
+                        cont += 1
+                        var3 = lista.pop()
+                        var3 = solu[cont]
+                        if len(lista) != 0:
+                            var4 = lista.pop()
+                            if var4 == '!':
+                                if solu[cont] == 0:
+                                    var3 = 1
+                                else:
+                                    var3 = 0
+                            elif var4 == '\!':
+                                lista.insert(len(lista), '\!')
+                        resolu = var1 and var3
+                        lista.insert(len(lista), resolu)
+
+                if var1 == 'q':
+                    var2 = lista.pop()
+                    print("Desempilhei:" + str(var2))
+                    if var2 == '!':
+                        var3 = solu[cont]
+                        if var3 == 0:
+                            lista.insert(len(lista),1)
+                        else:
+                            lista.insert(len(lista), 0)
+                    else:
+                        lista.insert(len(lista),var2)
+
+                print(lista)
+        print(indScore)
+        #populacaoScore.append(indScore)
+        ind.score = indScore
+
 
 def print_tree(no):
     if no == None:
         return
-    print(no.data)
     print_tree(no.left)
+    #print(no.data)
+    listaFant.append(no.data)
     print_tree(no.right)
 
 def construirArvore(cromossomo,no):
     global index
-    global index2
-   # print(index)
-    #print("no da arvore: " + cromossomo[index])
-    if index< len(cromossomo) and  cromossomo[index] == "!":
+    if index< len(cromossomo) and cromossomo[index] == "\!":
+        no = Node("\!")
+        index += 1
+        no.left = construirArvore(cromossomo,no)
+        return no
+    if index< len(cromossomo) and cromossomo[index] == "!":
         no = Node("!")
         index += 1
         no.left = construirArvore(cromossomo,no)
@@ -57,15 +137,16 @@ def construirArvore(cromossomo,no):
     return no
 
 def init_populacao():
-    for i in range(1):
+    global index
+    for i in range(10):
         cromossomo = []
         aleatorio = np.random.randint(0, 2)
         if aleatorio == 1:
-            cromossomo.append('!')
+            cromossomo.append('\!')
         cromossomo.append('(')
         aleatorio = np.random.randint(0, 2)
         if aleatorio == 1:
-            cromossomo.append('!')
+            cromossomo.append('\!')
         cromossomo.append('(')
         cromossomo.append('q')
         aleatorio = np.random.randint(0, 2)
@@ -89,9 +170,9 @@ def init_populacao():
         cromossomo.append('q')
         cromossomo.append(')')
 
-        # cromossomo.append('!')
+        # cromossomo.append('\!')
         # cromossomo.append('(')
-        # cromossomo.append('!')
+        # cromossomo.append('\!')
         # cromossomo.append('(')
         # cromossomo.append('!')
         # cromossomo.append('q')
@@ -103,12 +184,17 @@ def init_populacao():
         # cromossomo.append('!')
         # cromossomo.append('q')
         # cromossomo.append(')')
-        populacao.append(Cromossomo(cromossomo))
-        for l in range (len(populacao)):
-            print(populacao[l])
+        print(cromossomo)
         no = Node('')
-        no = construirArvore(cromossomo,no)
-        print_tree(no)
+        no = construirArvore(cromossomo, no)
+        #print_tree(no)
+        populacao.append(no)
+        index = 0
+        #print(populacao[0])
+        # cromossomo = populacao[l]
 
 if __name__ == '__main__':
     init_populacao()
+    score(populacao)
+    for ind in populacao:
+        print(ind.score)
