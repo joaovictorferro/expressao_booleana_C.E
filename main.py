@@ -5,19 +5,28 @@ from copy import deepcopy
 
 solucao = [[1,1,1,0],
          [1,1,0,0],
-         [1,0,1,0],
-         [1,0,0,1],
-         [0,1,1,0],
+         [1,0,1,1],
+         [1,0,0,0],
+         [0,1,1,1],
          [0,1,0,0],
-         [0,0,1,0],
+         [0,0,1,1],
          [0,0,0,0]]
 
 dicionario = {0: "and", 1: "or"}
 populacao = []
+novaPopulacao = []
 listaFant = []
 nodes_to_remove = []
 global index
 index = 0
+
+def selection():
+    qualquerLista = populacao + novaPopulacao
+    qualquerLista = sorted(qualquerLista, key=lambda ind: abs(ind.score), reverse=True)
+    selected_population = []
+    for i in range(20):
+        selected_population.append(qualquerLista[i])
+    return selected_population
 
 def change_node(node):
     if node == None:
@@ -47,7 +56,7 @@ def search(node):
     if node == None:
         return
     if node.data == "or" or node.data == "and":
-        flag_left = search_subtree(node.left) 
+        flag_left = search_subtree(node.left)
         flag_right = search_subtree(node.right)
         if not flag_left and not flag_right:
             nodes_to_remove.append(node)
@@ -81,6 +90,7 @@ def score(ScorePopulacao):
         for solu in solucao:
             lista = listaFant.copy()
             cont = 0
+
             while len(lista) != 0:
                 var1 = lista.pop()
                 # print("Desempilhei 1 :" + str(var1))
@@ -104,14 +114,17 @@ def score(ScorePopulacao):
                         if len(lista) != 0:
                             var4 = lista.pop()
                             if var4 == '!':
-                                if solu[cont] == 0:
+                                if var3 == 0:
                                     var3 = 1
                                 else:
                                     var3 = 0
-                            elif var4 =='\\!':
+                            elif var4 == '\\!':
                                 lista.insert(len(lista), '\\!')
+                            else:
+                                lista.insert(len(lista),var4)
                         resolu = var1 or var3
-                        lista.insert(len(lista),resolu)
+                        lista.insert(len(lista), resolu)
+                        # print(lista)
 
                     if var2 == 'and':
                         cont += 1
@@ -120,14 +133,17 @@ def score(ScorePopulacao):
                         if len(lista) != 0:
                             var4 = lista.pop()
                             if var4 == '!':
-                                if solu[cont] == 0:
+                                if var3 == 0:
                                     var3 = 1
                                 else:
                                     var3 = 0
-                            elif var4 == '\!':
-                                lista.insert(len(lista), '\!')
+                            elif var4 == '\\!':
+                                lista.insert(len(lista), '\\!')
+                            else:
+                                lista.insert(len(lista),var4)
                         resolu = var1 and var3
                         lista.insert(len(lista), resolu)
+                        # print(lista)
 
                 if var1 == 'q':
                     var2 = lista.pop()
@@ -140,6 +156,7 @@ def score(ScorePopulacao):
                             lista.insert(len(lista), 0)
                     else:
                         lista.insert(len(lista),var2)
+                        lista.insert(len(lista),solu[cont])
 
                 # print(lista)
         # print(indScore)
@@ -198,7 +215,7 @@ def construirArvore(cromossomo,no):
 
 def init_populacao():
     global index
-    for i in range(2):
+    for i in range(10):
         cromossomo = []
         aleatorio = np.random.randint(0, 2)
         if aleatorio == 1:
@@ -244,7 +261,7 @@ def init_populacao():
         # cromossomo.append('!')
         # cromossomo.append('q')
         # cromossomo.append(')')
-        print(cromossomo)
+        # print(cromossomo)
         no = Node('')
         no = construirArvore(cromossomo, no)
         #in_order(no)
@@ -256,6 +273,6 @@ def init_populacao():
 if __name__ == '__main__':
     init_populacao()
     score(populacao)
-    # for ind in populacao:
-        # print(ind.score)
-    cross_over(populacao)
+    for ind in populacao:
+        print(ind.score)
+    #cross_over(populacao)
