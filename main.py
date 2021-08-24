@@ -28,7 +28,7 @@ def selection():
         selected_population.append(qualquerLista[i])
     return selected_population
 
-def change_node(node):
+def change_subtree(node):
     if node == None:
         return
     if node.left == nodes_to_remove[0]:
@@ -36,14 +36,15 @@ def change_node(node):
         return
     if node.right == nodes_to_remove[0]:
         node.right = deepcopy(nodes_to_remove[1])
+        return
     if node.left == nodes_to_remove[1]:
         node.left = deepcopy(nodes_to_remove[0])
         return
     if node.right == nodes_to_remove[1]:
         node.right = deepcopy(nodes_to_remove[0])
         return
-    change_node(node.left)
-    change_node(node.right)
+    change_subtree(node.left)
+    change_subtree(node.right)
 
 def search_subtree(root):
     if root == None:
@@ -64,20 +65,55 @@ def search(node):
     search(node.left)
     search(node.right)
 
+def mutate_node(node, possibilities, change_to=""):
+    if node == None:
+        return
+    if node.left != None and len(possibilities) == 2:
+        if node.left.data in possibilities:
+            if node.left.left == None:
+                node.left = node.left.right
+            else:
+                node.left = node.left.left
+            return
+    if node.right != None and len(possibilities) == 2:
+        if node.right.data in possibilities:
+            if node.right.right == None:
+                node.right = node.right.left
+            else:
+                node.right = node.right.right
+            return
+    if node.data in possibilities:
+        if node.data == "or" or node.data == "and":
+            node.data = change_to
+            return
+
+def mutation(population):
+    for ind in population:
+        chance = np.random.randint(0, 100)
+        if chance <= 3:
+            chance = np.random.randint(1, 3)
+            if chance == 2:
+                mutate_node(ind, ["and"], "or")
+            else:
+                mutate_node(ind, ["or"], "and")
+
 def cross_over(population):
+    new_population = []
     for father in population:
         for mother in population:
             if father != mother:
                 chance = np.random.randint(0, 100)
                 if chance <= 70:
-                    search(father)
-                    search(mother)
-                    change_node(father)
-                    change_node(mother)
-                    for n in nodes_to_remove:
-                        print(n.data)
-                    print("#############")
+                    first_son = deepcopy(father)
+                    second_son = deepcopy(mother)
+                    search(first_son)
+                    search(second_son)
+                    change_subtree(first_son)
+                    change_subtree(second_son)
+                    new_population.append(first_son)
+                    new_population.append(second_son)
             nodes_to_remove.clear()
+    return new_population
 
 def score(ScorePopulacao):
     for ind in ScorePopulacao:
@@ -86,14 +122,12 @@ def score(ScorePopulacao):
         in_order(ind)
         listaFant.reverse()
         indScore = 0
-        print(listaFant)
         for solu in solucao:
             lista = listaFant.copy()
             cont = 0
 
             while len(lista) != 0:
                 var1 = lista.pop()
-                # print("Desempilhei 1 :" + str(var1))
                 if len(lista) == 0:
                     cont += 1
                     if var1 == solu[cont]:
@@ -124,7 +158,6 @@ def score(ScorePopulacao):
                                 lista.insert(len(lista),var4)
                         resolu = var1 or var3
                         lista.insert(len(lista), resolu)
-                        # print(lista)
 
                     if var2 == 'and':
                         cont += 1
@@ -143,11 +176,9 @@ def score(ScorePopulacao):
                                 lista.insert(len(lista),var4)
                         resolu = var1 and var3
                         lista.insert(len(lista), resolu)
-                        # print(lista)
 
                 if var1 == 'q':
                     var2 = lista.pop()
-                    # print("Desempilhei:" + str(var2))
                     if var2 == '!':
                         var3 = solu[cont]
                         if var3 == 0:
@@ -158,9 +189,6 @@ def score(ScorePopulacao):
                         lista.insert(len(lista),var2)
                         lista.insert(len(lista),solu[cont])
 
-                # print(lista)
-        # print(indScore)
-        #populacaoScore.append(indScore)
         ind.score = indScore
 
 def print_tree(no):
@@ -174,7 +202,6 @@ def in_order(no):
     if no == None:
         return
     in_order(no.left)
-    print(no.data)
     listaFant.append(no.data)
     in_order(no.right)
 
@@ -215,7 +242,7 @@ def construirArvore(cromossomo,no):
 
 def init_populacao():
     global index
-    for i in range(10):
+    for i in range(2):
         cromossomo = []
         aleatorio = np.random.randint(0, 2)
         if aleatorio == 1:
@@ -261,18 +288,15 @@ def init_populacao():
         # cromossomo.append('!')
         # cromossomo.append('q')
         # cromossomo.append(')')
-        # print(cromossomo)
         no = Node('')
         no = construirArvore(cromossomo, no)
         #in_order(no)
         populacao.append(no)
         index = 0
-        #print(populacao[0])
         # cromossomo = populacao[l]
 
 if __name__ == '__main__':
     init_populacao()
     score(populacao)
-    for ind in populacao:
-        print(ind.score)
-    #cross_over(populacao)
+    new_population = cross_over(populacao)
+    mutation(populacao)
