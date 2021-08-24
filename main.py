@@ -1,6 +1,8 @@
 import numpy as np
 from cromossomo import Cromossomo
 from tree import Node
+from copy import deepcopy
+
 solucao = [[1,1,1,0],
          [1,1,0,0],
          [1,0,1,0],
@@ -13,14 +15,66 @@ solucao = [[1,1,1,0],
 dicionario = {0: "and", 1: "or"}
 populacao = []
 listaFant = []
+nodes_to_remove = []
 global index
 index = 0
+
+def change_node(node):
+    if node == None:
+        return
+    if node.left == nodes_to_remove[0]:
+        node.left = deepcopy(nodes_to_remove[1])
+        return
+    if node.right == nodes_to_remove[0]:
+        node.right = deepcopy(nodes_to_remove[1])
+    if node.left == nodes_to_remove[1]:
+        node.left = deepcopy(nodes_to_remove[0])
+        return
+    if node.right == nodes_to_remove[1]:
+        node.right = deepcopy(nodes_to_remove[0])
+        return
+    change_node(node.left)
+    change_node(node.right)
+
+def search_subtree(root):
+    if root == None:
+        return False
+    if root.data == "or" or root.data == "and":
+        return True
+    return search_subtree(root.left) or search_subtree(root.right)
+
+def search(node):
+    if node == None:
+        return
+    if node.data == "or" or node.data == "and":
+        flag_left = search_subtree(node.left) 
+        flag_right = search_subtree(node.right)
+        if not flag_left and not flag_right:
+            nodes_to_remove.append(node)
+            return
+    search(node.left)
+    search(node.right)
+
+def cross_over(population):
+    for father in population:
+        for mother in population:
+            if father != mother:
+                chance = np.random.randint(0, 100)
+                if chance <= 70:
+                    search(father)
+                    search(mother)
+                    change_node(father)
+                    change_node(mother)
+                    for n in nodes_to_remove:
+                        print(n.data)
+                    print("#############")
+            nodes_to_remove.clear()
 
 def score(ScorePopulacao):
     for ind in ScorePopulacao:
         lista = []
         listaFant.clear()
-        print_tree(ind)
+        in_order(ind)
         listaFant.reverse()
         indScore = 0
         print(listaFant)
@@ -29,7 +83,7 @@ def score(ScorePopulacao):
             cont = 0
             while len(lista) != 0:
                 var1 = lista.pop()
-                print("Desempilhei 1 :" + str(var1))
+                # print("Desempilhei 1 :" + str(var1))
                 if len(lista) == 0:
                     cont += 1
                     if var1 == solu[cont]:
@@ -77,7 +131,7 @@ def score(ScorePopulacao):
 
                 if var1 == 'q':
                     var2 = lista.pop()
-                    print("Desempilhei:" + str(var2))
+                    # print("Desempilhei:" + str(var2))
                     if var2 == '!':
                         var3 = solu[cont]
                         if var3 == 0:
@@ -87,19 +141,25 @@ def score(ScorePopulacao):
                     else:
                         lista.insert(len(lista),var2)
 
-                print(lista)
-        print(indScore)
+                # print(lista)
+        # print(indScore)
         #populacaoScore.append(indScore)
         ind.score = indScore
-
 
 def print_tree(no):
     if no == None:
         return
+    print(no.data)
     print_tree(no.left)
-    #print(no.data)
-    listaFant.append(no.data)
     print_tree(no.right)
+
+def in_order(no):
+    if no == None:
+        return
+    in_order(no.left)
+    print(no.data)
+    listaFant.append(no.data)
+    in_order(no.right)
 
 def construirArvore(cromossomo,no):
     global index
@@ -138,7 +198,7 @@ def construirArvore(cromossomo,no):
 
 def init_populacao():
     global index
-    for i in range(10):
+    for i in range(2):
         cromossomo = []
         aleatorio = np.random.randint(0, 2)
         if aleatorio == 1:
@@ -187,7 +247,7 @@ def init_populacao():
         print(cromossomo)
         no = Node('')
         no = construirArvore(cromossomo, no)
-        #print_tree(no)
+        #in_order(no)
         populacao.append(no)
         index = 0
         #print(populacao[0])
@@ -196,5 +256,6 @@ def init_populacao():
 if __name__ == '__main__':
     init_populacao()
     score(populacao)
-    for ind in populacao:
-        print(ind.score)
+    # for ind in populacao:
+        # print(ind.score)
+    cross_over(populacao)
