@@ -2,7 +2,7 @@
 # Arthur Savio
 # Guilherme Amaral
 # João Victor Ribeiro
-# Tabela escolhida: 16
+# Tabela escolhida: 15
 
 import numpy as np
 from cromossomo import Cromossomo
