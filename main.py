@@ -3,6 +3,7 @@
 # Guilherme Amaral
 # João Victor Ribeiro
 # Tabela escolhida: 15
+# IDE utilizada PyCharm
 
 import numpy as np
 from cromossomo import Cromossomo
