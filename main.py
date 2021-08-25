@@ -1,3 +1,9 @@
+#Equipe:
+# Arthur Savio
+# Guilherme Amaral
+# João Victor Ribeiro
+# Tabela escolhida: 16
+
 import numpy as np
 from cromossomo import Cromossomo
 from tree import Node
@@ -274,20 +280,6 @@ def init_populacao():
         cromossomo.append('q')
         cromossomo.append(')')
 
-        # cromossomo.append('\!')
-        # cromossomo.append('(')
-        # cromossomo.append('\!')
-        # cromossomo.append('(')
-        # cromossomo.append('!')
-        # cromossomo.append('q')
-        # cromossomo.append('or')
-        # cromossomo.append('!')
-        # cromossomo.append('q')
-        # cromossomo.append(')')
-        # cromossomo.append('or')
-        # cromossomo.append('!')
-        # cromossomo.append('q')
-        # cromossomo.append(')')
         no = Node('')
         no = construirArvore(cromossomo, no)
         #in_order(no)
