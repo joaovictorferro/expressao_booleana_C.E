@@ -3,14 +3,14 @@ from cromossomo import Cromossomo
 from tree import Node
 from copy import deepcopy
 
-solucao = [[1,1,1,0],
-         [1,1,0,0],
+solucao = [[1,1,1,1],
+         [1,1,0,1],
          [1,0,1,1],
-         [1,0,0,0],
+         [1,0,0,1],
          [0,1,1,1],
-         [0,1,0,0],
-         [0,0,1,1],
-         [0,0,0,0]]
+         [0,1,0,1],
+         [0,0,1,0],
+         [0,0,0,1]]
 
 dicionario = {0: "and", 1: "or"}
 populacao = []
@@ -21,7 +21,7 @@ global index
 index = 0
 
 def selection():
-    qualquerLista = populacao + novaPopulacao
+    qualquerLista = populacao + new_population
     qualquerLista = sorted(qualquerLista, key=lambda ind: abs(ind.score), reverse=True)
     selected_population = []
     for i in range(20):
@@ -242,7 +242,7 @@ def construirArvore(cromossomo,no):
 
 def init_populacao():
     global index
-    for i in range(2):
+    for i in range(20):
         cromossomo = []
         aleatorio = np.random.randint(0, 2)
         if aleatorio == 1:
@@ -297,6 +297,19 @@ def init_populacao():
 
 if __name__ == '__main__':
     init_populacao()
-    score(populacao)
-    new_population = cross_over(populacao)
-    mutation(populacao)
+    flag = 0
+    while True:
+        score(populacao)
+        for ind in populacao:
+            if ind.score == 8:
+                print("Expressao Booleana correta: ")
+                print_tree(ind)
+                flag = 1
+                break
+        if flag == 1:
+            break
+        new_population = cross_over(populacao)
+        mutation(new_population)
+        score(new_population)
+        populacao = selection()
+        new_population.clear()
