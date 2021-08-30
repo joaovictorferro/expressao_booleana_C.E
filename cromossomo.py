@@ -1,9 +1,9 @@
 class Cromossomo:
-    def __init__(self, individuo):
-        self.individuo = individuo
+    def __init__(self, valor):
+        self.valor = valor
 
     def __str__(self):
         chromosomes = ''
-        for i in range(len(self.individuo)):
-            chromosomes += str(self.individuo[i]) + " "
+        for i in range(len(self.valor)):
+            chromosomes += str(self.valor[i]) + " "
         return chromosomes

@@ -75,20 +75,6 @@ def search(node):
 def mutate_node(node, possibilities, change_to=""):
     if node == None:
         return
-    if node.left != None and len(possibilities) == 2:
-        if node.left.data in possibilities:
-            if node.left.left == None:
-                node.left = node.left.right
-            else:
-                node.left = node.left.left
-            return
-    if node.right != None and len(possibilities) == 2:
-        if node.right.data in possibilities:
-            if node.right.right == None:
-                node.right = node.right.left
-            else:
-                node.right = node.right.right
-            return
     if node.data in possibilities:
         if node.data == "or" or node.data == "and":
             node.data = change_to
